@@ -9,7 +9,6 @@ class User extends CI_Controller
             'user',
             ['email' => $this->session->userdata('email')]
         )->row_array();
-        $this->load->view('user/index',$data);
 
         $this->load->view('templates/mhs_header');
         $this->load->view('mhs/v_dashboard');
