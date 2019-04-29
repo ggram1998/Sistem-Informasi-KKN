@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.3
+-- version 4.7.9
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 27, 2019 at 03:05 PM
--- Server version: 10.1.36-MariaDB
--- PHP Version: 7.2.11
+-- Generation Time: Apr 29, 2019 at 11:47 AM
+-- Server version: 10.1.31-MariaDB
+-- PHP Version: 7.2.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -31,8 +31,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `admin` (
   `id_admin` int(6) NOT NULL,
   `username` varchar(35) NOT NULL,
-  `password` int(20) NOT NULL,
-  `id_role` int(6) NOT NULL
+  `password` int(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -53,6 +52,17 @@ CREATE TABLE `daerah_penempatan` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `dash`
+--
+
+CREATE TABLE `dash` (
+  `id_dash` int(6) NOT NULL,
+  `id_pengumuman` int(6) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `dpl`
 --
 
@@ -64,7 +74,8 @@ CREATE TABLE `dpl` (
   `penghargaan` varchar(50) NOT NULL,
   `id_peng_masy` int(6) NOT NULL,
   `id_penelitian` int(6) NOT NULL,
-  `id_role` int(6) NOT NULL
+  `id_dash` int(6) NOT NULL,
+  `id_peng_tugas` int(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -83,7 +94,7 @@ CREATE TABLE `mahasiswa` (
   `id_wali` int(6) NOT NULL,
   `nip` int(20) NOT NULL,
   `id_daerah` int(6) NOT NULL,
-  `id_role` int(6) NOT NULL
+  `id_dash` int(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -131,47 +142,17 @@ CREATE TABLE `pengumpulan_tugas` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `role`
+-- Table structure for table `pengumuman`
 --
 
-CREATE TABLE `role` (
-  `id_role` int(6) NOT NULL,
-  `role` varchar(50) NOT NULL
+CREATE TABLE `pengumuman` (
+  `id_pengumuman` int(6) NOT NULL,
+  `judul` varchar(50) NOT NULL,
+  `isi` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id_admin` int(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `role`
---
-
-INSERT INTO `role` (`id_role`, `role`) VALUES
-(1, 'admin'),
-(2, 'dpl'),
-(3, 'mahasiswa');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user`
---
-
-CREATE TABLE `user` (
-  `id` int(11) NOT NULL,
-  `name` varchar(35) NOT NULL,
-  `email` varchar(35) NOT NULL,
-  `image` varchar(128) NOT NULL,
-  `password` varchar(256) NOT NULL,
-  `role_id` int(11) NOT NULL,
-  `is_active` int(1) NOT NULL,
-  `date_created` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `user`
---
-
-INSERT INTO `user` (`id`, `name`, `email`, `image`, `password`, `role_id`, `is_active`, `date_created`) VALUES
-(3, 'vicko', 'vicko@gmail.com', 'default.jpg', '$2y$10$sWkgx6g.XzYp72nYuJr59erms22jz1Hk7NlRX7ADTS8A6eN4.28mO', 2, 1, 1556338519),
-(4, 'pratama', 'pratama@gmail.com', 'default.jpg', '$2y$10$lmsE5A1CKUwHO2c68ywnm.Xc2T9n.UvDfJF9N8yxkXjCztroGTuD2', 2, 1, 1556343358);
 
 -- --------------------------------------------------------
 
@@ -195,8 +176,7 @@ CREATE TABLE `wali` (
 -- Indexes for table `admin`
 --
 ALTER TABLE `admin`
-  ADD PRIMARY KEY (`id_admin`),
-  ADD KEY `id_role` (`id_role`);
+  ADD PRIMARY KEY (`id_admin`);
 
 --
 -- Indexes for table `daerah_penempatan`
@@ -205,13 +185,21 @@ ALTER TABLE `daerah_penempatan`
   ADD PRIMARY KEY (`id_daerah`);
 
 --
+-- Indexes for table `dash`
+--
+ALTER TABLE `dash`
+  ADD PRIMARY KEY (`id_dash`),
+  ADD KEY `id_pengumuman` (`id_pengumuman`);
+
+--
 -- Indexes for table `dpl`
 --
 ALTER TABLE `dpl`
   ADD PRIMARY KEY (`nip`),
   ADD KEY `id_peng_masy` (`id_peng_masy`),
   ADD KEY `id_penelitian` (`id_penelitian`),
-  ADD KEY `id_role` (`id_role`);
+  ADD KEY `id_dash` (`id_dash`),
+  ADD KEY `id_peng_tugas` (`id_peng_tugas`);
 
 --
 -- Indexes for table `mahasiswa`
@@ -221,7 +209,7 @@ ALTER TABLE `mahasiswa`
   ADD KEY `id_wali` (`id_wali`),
   ADD KEY `nip` (`nip`),
   ADD KEY `id_daerah` (`id_daerah`),
-  ADD KEY `id_role` (`id_role`);
+  ADD KEY `id_dash` (`id_dash`);
 
 --
 -- Indexes for table `penelitian`
@@ -243,16 +231,11 @@ ALTER TABLE `pengumpulan_tugas`
   ADD KEY `nim` (`nim`);
 
 --
--- Indexes for table `role`
+-- Indexes for table `pengumuman`
 --
-ALTER TABLE `role`
-  ADD PRIMARY KEY (`id_role`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `pengumuman`
+  ADD PRIMARY KEY (`id_pengumuman`),
+  ADD KEY `id_admin` (`id_admin`);
 
 --
 -- Indexes for table `wali`
@@ -295,18 +278,6 @@ ALTER TABLE `pengumpulan_tugas`
   MODIFY `id_peng_tugas` int(6) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `role`
---
-ALTER TABLE `role`
-  MODIFY `id_role` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `user`
---
-ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
 -- AUTO_INCREMENT for table `wali`
 --
 ALTER TABLE `wali`
@@ -317,10 +288,10 @@ ALTER TABLE `wali`
 --
 
 --
--- Constraints for table `admin`
+-- Constraints for table `dash`
 --
-ALTER TABLE `admin`
-  ADD CONSTRAINT `admin_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`);
+ALTER TABLE `dash`
+  ADD CONSTRAINT `dash_ibfk_1` FOREIGN KEY (`id_pengumuman`) REFERENCES `pengumuman` (`id_pengumuman`);
 
 --
 -- Constraints for table `dpl`
@@ -328,7 +299,8 @@ ALTER TABLE `admin`
 ALTER TABLE `dpl`
   ADD CONSTRAINT `dpl_ibfk_1` FOREIGN KEY (`id_peng_masy`) REFERENCES `pengabdian_masyarakat` (`id_peng_masy`),
   ADD CONSTRAINT `dpl_ibfk_2` FOREIGN KEY (`id_penelitian`) REFERENCES `penelitian` (`id_penelitian`),
-  ADD CONSTRAINT `dpl_ibfk_3` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`);
+  ADD CONSTRAINT `dpl_ibfk_3` FOREIGN KEY (`id_dash`) REFERENCES `dash` (`id_dash`),
+  ADD CONSTRAINT `dpl_ibfk_4` FOREIGN KEY (`id_peng_tugas`) REFERENCES `pengumpulan_tugas` (`id_peng_tugas`);
 
 --
 -- Constraints for table `mahasiswa`
@@ -337,13 +309,19 @@ ALTER TABLE `mahasiswa`
   ADD CONSTRAINT `mahasiswa_ibfk_1` FOREIGN KEY (`id_wali`) REFERENCES `wali` (`id_wali`),
   ADD CONSTRAINT `mahasiswa_ibfk_2` FOREIGN KEY (`nip`) REFERENCES `dpl` (`nip`),
   ADD CONSTRAINT `mahasiswa_ibfk_3` FOREIGN KEY (`id_daerah`) REFERENCES `daerah_penempatan` (`id_daerah`),
-  ADD CONSTRAINT `mahasiswa_ibfk_4` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`);
+  ADD CONSTRAINT `mahasiswa_ibfk_4` FOREIGN KEY (`id_dash`) REFERENCES `dash` (`id_dash`);
 
 --
 -- Constraints for table `pengumpulan_tugas`
 --
 ALTER TABLE `pengumpulan_tugas`
   ADD CONSTRAINT `pengumpulan_tugas_ibfk_1` FOREIGN KEY (`nim`) REFERENCES `mahasiswa` (`nim`);
+
+--
+-- Constraints for table `pengumuman`
+--
+ALTER TABLE `pengumuman`
+  ADD CONSTRAINT `pengumuman_ibfk_1` FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id_admin`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
